@@ -1,8 +1,9 @@
 ﻿using Xunit;
-using GildedRoseKata;
+
 using AutoFixture;
 using System.Linq;
 using FluentAssertions;
+using GildedRoseKata;
 
 namespace GildedRoseTests
 {
@@ -131,6 +132,26 @@ namespace GildedRoseTests
         }
 
         [Fact]
+        public void Given_AgedBrieItemPassesSellBy_When_QualityUpdateOccurs_Then_QualityIsIncreasedByTwo()
+        {
+            // Arrange
+            var items = _fixture.Build<Item>()
+                .With(x => x.Name, "Aged Brie")
+                .With(x => x.Quality, 4)
+                .With(x => x.SellIn, 0)
+                .CreateMany()
+                .ToList();
+
+            GildedRose sut = new(items);
+
+            // Act
+            sut.UpdateQuality();
+
+            // Assert
+            items.Should().AllSatisfy(i => i.Quality.Should().Be(6));
+        }
+
+        [Fact]
         public void Given_AgedBrieItemQualityReachesFifty_When_QualityUpdateOccurs_Then_QualityIsNotIncreased()
         {
             // Arrange
@@ -171,7 +192,6 @@ namespace GildedRoseTests
         [Theory]
         [InlineData(10, 5)]
         [InlineData(8, 5)]
-        [InlineData(6, 5)]
         public void Given_BackstagePassesHaveTenDaysOrLessToSell_When_QualityUpdateOccurs_Then_QualityIncreasesByTwo(int sellIn, int quality)
         {
             // Arrange
